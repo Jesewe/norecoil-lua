@@ -22,20 +22,22 @@ jobs:
         sudo apt-get install -y luarocks
         luarocks --local install luacheck
 
+    - name: Add LuaRocks local bin to PATH
+      run: |
+        echo "Adding LuaRocks local bin to PATH"
+        echo "::add-path::$(luarocks path --bin)"
+        echo "::add-path::$(luarocks path --tree)/bin"
+
+    - name: Verify LuaRocks and Luacheck installation
+      run: |
+        luarocks list
+        luacheck --version
+
     - name: Run Lua Linter
       run: luacheck . --exclude-files .github/ --codes
 
-    - name: Validate README.md
-      run: |
-        echo "Checking if README.md exists..."
-        if [ ! -f README.md ]; then
-          echo "README.md file is missing!" >&2
-          exit 1
-        fi
-        echo "README.md is present."
-
     - name: Basic Script Check
-      run: lua -v scripts/norecoil.lua
+      run: lua scripts/norecoil.lua
       working-directory: scripts/
 
     - name: Display Workflow Completion

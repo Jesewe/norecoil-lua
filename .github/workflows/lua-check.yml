@@ -22,9 +22,6 @@ jobs:
         sudo apt-get install -y luarocks
         luarocks --local install luacheck
 
-    - name: Add LuaRocks local bin to PATH
-      run: echo "::add-path::$(luarocks --local config variables.LUAROCKS_PREFIX)/bin"
-
     - name: Run Lua Linter
       run: luacheck . --exclude-files .github/ --codes
 

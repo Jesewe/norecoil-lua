@@ -1,0 +1,42 @@
+name: Lua Script CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Lua environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y luarocks
+        luarocks install luacheck
+
+    - name: Run Lua Linter
+      run: luacheck . --exclude-files .github/ --codes
+
+    - name: Validate README.md
+      run: |
+        echo "Checking if README.md exists..."
+        if [ ! -f README.md ]; then
+          echo "README.md file is missing!" >&2
+          exit 1
+        fi
+        echo "README.md is present."
+
+    - name: Basic Script Check
+      run: lua -v scripts/norecoil.lua
+      working-directory: scripts/
+
+    - name: Display Workflow Completion
+      run: echo "CI tasks completed successfully!"

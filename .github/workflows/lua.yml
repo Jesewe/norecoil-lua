@@ -22,12 +22,13 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y luarocks
-        luarocks install luacheck
+        luarocks install --local luacheck
+
+    - name: Add LuaRocks Bin to PATH
+      run: echo "::add-path::$(luarocks path --bin)"
 
     - name: Lint Lua Script
       run: luacheck NoRecoil.lua
-      env:
-        LUAROCKS_PATH: ${{ runner.tool_cache }}
 
   release:
     name: Create Release
@@ -38,20 +39,24 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    - name: Set up Release Version
-      id: version
-      run: echo "version=v1.0.0" >> $GITHUB_ENV
-
     - name: Create Release
       uses: actions/create-release@v1
       with:
-        tag_name: ${{ env.version }}
-        release_name: NoRecoil Script ${{ env.version }}
+        tag_name: v1.0.0
+        release_name: "NoRecoil Script v1.0.0"
         body: |
           **NoRecoil Script for Logitech Mouse in CS2**
           - Script allows customizable recoil patterns.
           - Designed for Logitech G Hub environment.
         draft: false
         prerelease: false
-        files: |
-          NoRecoil.lua
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: NoRecoil.lua
+        asset_name: NoRecoil.lua
+        asset_content_type: text/plain
